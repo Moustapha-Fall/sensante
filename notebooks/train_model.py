@@ -155,8 +155,8 @@ model_loaded = joblib.load("models/model.pkl")
 le_sexe_loaded = joblib.load("models/encoder_sexe.pkl")
 le_region_loaded = joblib.load("models/encoder_region.pkl")
 
-print(f"Modele recharge : {type(model_loaded).__name__}")
-print(f"Classes : {list(model_loaded.classes_)}")
+# print(f"Modele recharge : {type(model_loaded).__name__}")
+# print(f"Classes : {list(model_loaded.classes_)}")
 
 #--------------------------------------------------------------------------
 
@@ -193,13 +193,40 @@ diagnostic = model_loaded.predict([features])[0]
 probas = model_loaded.predict_proba([features])[0]
 proba_max = probas.max()
 
-print(f"\n--- Resultat du pre-diagnostic ---")
-print(f"Patient : {nouveau_patient['sexe']}, {nouveau_patient['age']} ans")
-print(f"Diagnostic : {diagnostic}")
-print(f"Probabilite : {proba_max:.1%}")
-print(f"\nProbabilites par classe :")
-for classe, proba in zip(model_loaded.classes_, probas):
-    bar = '#' * int(proba * 30)
-    print(f"  {classe:8s} : {proba:.1%} {bar}")
+# print(f"\n--- Resultat du pre-diagnostic ---")
+# print(f"Patient : {nouveau_patient['sexe']}, {nouveau_patient['age']} ans")
+# print(f"Diagnostic : {diagnostic}")
+# print(f"Probabilite : {proba_max:.1%}")
+# print(f"\nProbabilites par classe :")
+# for classe, proba in zip(model_loaded.classes_, probas):
+#     bar = '#' * int(proba * 30)
+#     print(f"  {classe:8s} : {proba:.1%} {bar}")
 
+#--------------------------------------------------------------------------
 
+importances = model.feature_importances_
+
+for name, imp in sorted(
+    zip(feature_cols, importances),
+    key=lambda x: x[1],
+    reverse=True
+):
+    print(f"{name:20s} : {imp:.3f}")
+
+# Patient 1 : jeune sans symptômes,
+p1 = pd.DataFrame([[18, 1, 36.5, 120, 0, 0, 0, 0]], columns=feature_cols)
+
+# Patient 2 : adulte avec forte fièvre et symptômes,
+p2 = pd.DataFrame([[35, 0, 39.8, 130, 1, 1, 1, 1]], columns=feature_cols)
+
+# Patient 3 : personne âgée avec toux,
+p3 = pd.DataFrame([[70, 1, 38.2, 140, 1, 0, 0, 1]], columns=feature_cols)
+
+patients = [p1, p2, p3]
+
+# =========================,
+# Prédictions,
+# =========================,
+for i, patient in enumerate(patients, 1):
+    prediction = model_loaded.predict(patient)[0]
+    print(f"Patient {i} → Diagnostic : {prediction}")
