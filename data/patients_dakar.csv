@@ -21,7 +21,15 @@ age,sexe,temperature,tension_sys,toux,fatigue,maux_tete,frissons,nausee,region,d
 61,M,38.9,10,1,1,1,1,1,Tambacounda,grippe
 21,M,39.1,10,1,1,1,1,1,Tambacounda,typhoide
 12,M,39.4,8,0,0,1,0,1,Saint-Louis,typhoide
-31,M,37.0,12,0,1,0,0,0,Dioar,paludisme
+31,M,37.0,12,0,1,0,0,0,Diourbel,sain
+5,M,40.1,11,0,1,0,1,1,Dakar,paludisme
+50,M,39.5,11,0,1,1,1,1,Fatick,paludisme
+24,M,40.0,12,1,1,1,1,1,Saint-Louis,paludisme
+27,M,39.6,10,0,1,1,1,1,Dakar,paludisme
+43,F,41.4,13,0,1,1,1,1,Tambacounda,paludisme
+28,M,36.3,13,0,1,0,0,0,Dakar,sain
+24,M,41.2,12,0,1,1,1,0,Dakar,paludisme
+41,F,40.1,12,0,1,1,0,1,Dakar,paludisme
 43,F,36.8,14,0,0,0,0,0,Thiès,sain
 44,F,39.6,9,1,1,1,1,1,Tambacounda,paludisme
 38,M,39.7,10,0,1,1,0,1,Dakar,paludisme
