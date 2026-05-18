@@ -152,6 +152,7 @@
 
         </div>
     </main>
+    <div id="historique-section" class="max-w-4xl mx-auto px-4"></div>
 
     <!-- Footer -->
     <footer class="text-center text-gray-400 text-sm py-4">
@@ -162,6 +163,7 @@
     <script>
         // URL de l'API (a changer si l'API est ailleurs)
         const API_URL = "http://localhost:8000";
+        const historique = [];
 
         async function diagnostiquer() {
             // 1. Recuperer les valeurs du formulaire
@@ -240,38 +242,41 @@
         function afficherResultat(r) {
             // Codes couleur par diagnostic
             const couleurs = {
-                palu:
-                    {bg:"bg-red-100", text:"text-red-800",
-                    bar:"bg-red-500", badge:"bg-red-500"},
-                grippe:
-                    {bg:"bg-orange-100", text:"text-orange-800",
-                    bar:"bg-orange-500", badge:"bg-orange-500"},
-                typh:
-                    {bg:"bg-yellow-100", text:"text-yellow-800",
-                    bar:"bg-yellow-500", badge:"bg-yellow-500"},
-                sain:
-                    {bg:"bg-green-100", text:"text-green-800",
-                    bar:"bg-green-500", badge:"bg-green-500"}
+                palu:   {bg:"bg-red-100",    text:"text-red-800",
+                        bar:"bg-red-500",    badge:"bg-red-500"},
+                grippe: {bg:"bg-orange-100", text:"text-orange-800",
+                        bar:"bg-orange-500", badge:"bg-orange-500"},
+                typh:   {bg:"bg-yellow-100", text:"text-yellow-800",
+                        bar:"bg-yellow-500", badge:"bg-yellow-500"},
+                sain:   {bg:"bg-green-100",  text:"text-green-800",
+                        bar:"bg-green-500",  badge:"bg-green-500"}
             };
 
-            const c = couleurs[r.diagnostic]
-                    || couleurs["sain"];
+            // Icones par diagnostic
+            const icones = {
+                palu:   "🌡️",
+                grippe: "❄️",
+                typh:   "🤢",
+                sain:   "✅"
+            };
+            const key = r.diagnostic.toLowerCase();
+            const c   = couleurs[key] || couleurs["sain"];
+            const ico = icones[key]   || "🩺";
             const pct = Math.round(r.probabilite * 100);
 
-            const section =
-                    document.getElementById("result-section");
+            const section = document.getElementById("result-section");
 
             section.innerHTML = `
                 <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-800
-                                mb-4">Resultat</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        Resultat</h2>
 
                     <div class="${c.bg} rounded-lg p-4 mb-4">
-                        <p class="text-sm text-gray-600">
-                            Diagnostic :</p>
+                        <p class="text-sm text-gray-600">Diagnostic :</p>
                         <p class="text-2xl font-bold ${c.text}
                                 uppercase mt-1">
-                            ${r.diagnostic}</p>
+                            ${ico} ${r.diagnostic}
+                        </p>
                     </div>
 
                     <div class="mb-4">
@@ -281,8 +286,7 @@
                             <span class="text-sm font-bold
                                         ${c.text}">${pct}%</span>
                         </div>
-                        <div class="w-full bg-gray-200
-                                    rounded-full h-3">
+                        <div class="w-full bg-gray-200 rounded-full h-3">
                             <div class="${c.bar} h-3 rounded-full
                                         transition-all duration-500"
                                 style="width: ${pct}%"></div>
@@ -302,7 +306,14 @@
                             ${r.message}</p>
                     </div>
                 </div>`;
-        }
+                // Ajouter a l'historique
+                historique.unshift({
+                    diagnostic: r.diagnostic,
+                    probabilite: Math.round(r.probabilite * 100)
+                });
+                if (historique.length > 5) historique.pop();
+                afficherHistorique();
+            }
 
         function afficherErreur(msg) {
             const section =
@@ -315,6 +326,44 @@
                     <p class="text-red-500 text-sm mt-2">
                         Verifiez votre connexion et reessayez.
                     </p>
+                </div>`;
+        }
+        function afficherHistorique() {
+            const section = document.getElementById("historique-section");
+            if (historique.length === 0) return;
+
+            const icones = {
+                palu: "🌡️", grippe: "❄️", typh: "🤢", sain: "✅"
+            };
+
+            const lignes = historique.map((h, i) => `
+                <tr class="border-t border-gray-100">
+                    <td class="px-3 py-2 text-sm text-gray-600">
+                        ${i + 1}</td>
+                    <td class="px-3 py-2 text-sm">
+                        ${icones[h.diagnostic.toLowerCase()] || "🩺"} ${h.diagnostic}</td>
+                    <td class="px-3 py-2 text-sm font-bold text-blue-600">
+                        ${h.probabilite}%</td>
+                </tr>
+            `).join("");
+
+            section.innerHTML = `
+                <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        Historique des consultations</h2>
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-3 py-2 text-left text-sm
+                                        text-gray-600">#</th>
+                                <th class="px-3 py-2 text-left text-sm
+                                        text-gray-600">Diagnostic</th>
+                                <th class="px-3 py-2 text-left text-sm
+                                        text-gray-600">Probabilite</th>
+                            </tr>
+                        </thead>
+                        <tbody>${lignes}</tbody>
+                    </table>
                 </div>`;
         }
     </script>
