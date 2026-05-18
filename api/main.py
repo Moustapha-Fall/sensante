@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import joblib
 import numpy as np
+from fastapi.middleware.cors import CORSMiddleware
 
 # Créer l'application
 app = FastAPI(
@@ -28,20 +29,20 @@ def health_check():
 # --- Schemas Pydantic ---
 class PatientInput(BaseModel) :
     """ Donnees d ' entree : les symptomes d ' un patient . """
-    age : int = Field(..., ge = 0, le = 120 , description = " Age en annees")
-    sexe : str = Field(..., description = " Sexe : M ou F ")
+    age : int = Field(..., ge = 0, le = 120 , description = "Age en annees")
+    sexe : str = Field(..., description = "Sexe : M ou F")
     temperature : float = Field(..., ge = 35.0, le = 42.0,
-    description = " Temperature en Celsius " )
+    description = "Temperature en Celsius" )
     tension_sys : int = Field (... , ge =60 , le =250 ,
-    description = " Tension systolique " )
-    toux : bool = Field (... , description = " Presence de toux " )
-    fatigue : bool = Field (... , description = " Presence de fatigue " )
-    maux_tete : bool = Field (... , description = " Presence de maux de tete " )
-    region : str = Field (... , description = " Region du Senegal " )
+    description = "Tension systolique")
+    toux : bool = Field (... , description = "Presence de toux")
+    fatigue : bool = Field (... , description = "Presence de fatigue")
+    maux_tete : bool = Field (... , description = "Presence de maux de tete")
+    region : str = Field (... , description = "Region du Senegal")
 
 class DiagnosticOutput ( BaseModel ) :
     """ Donnees de sortie : le resultat du diagnostic . """
-    diagnostic : str = Field (... , description = " Diagnostic predit " )
+    diagnostic : str = Field (... , description = "Diagnostic predit" )
     probabilite : float = Field (... , description = " Probabilite du diagnostic " )
     confiance : str = Field (... , description = " Niveau de confiance " )
     message : str = Field (... , description = " Recommandation " )
@@ -100,28 +101,44 @@ def predict ( patient : PatientInput ) :
         int ( patient.maux_tete ),
         region_enc
     ]])
+
     # 3. Predire
-    diagnostic = model.predict (features) [0]
-    probas = model.predict_proba (features) [0]
+    diagnostic = model.predict (features)[0]
+    probas = model.predict_proba (features)[0]
     proba_max = float (probas.max())
+
     # 4. Determiner le niveau de confiance
     if proba_max >= 0.7:
-        confiance = " haute "
+        confiance = "haute"
     elif proba_max >= 0.4:
-        confiance = " moyenne "
+        confiance = "moyenne"
     else :
         confiance = "faible"
+    
     # 5. Generer la recommandation
     messages = {
-        " palu " : " Suspicion de paludisme. Consultez un medecin rapidement.",
-        " grippe " : " Suspicion de grippe. Repos et hydratation recommandes.",
-        " typh " : " Suspicion de typhoide. Consultation medicale necessaire.",
-        " sain " : " Pas de pathologie detectee. Continuez a surveiller . "
+        "palu" : "Suspicion de paludisme. Consultez un medecin rapidement.",
+        "grippe" : "Suspicion de grippe. Repos et hydratation recommandes.",
+        "typh" : "Suspicion de typhoide. Consultation medicale necessaire.",
+        "sain" : "Pas de pathologie detectee. Continuez a surveiller."
     }
+
     # 6. Renvoyer le resultat
     return DiagnosticOutput (
         diagnostic = diagnostic ,
-        probabilite = round (proba_max, 2) ,
+        probabilite = round (proba_max, 2),
         confiance = confiance,
-        message = messages.get (diagnostic, "Consultez un medecin. ")
+        message = messages.get (diagnostic, "Consultez un medecin.")
     )
+
+
+#---------------------------------------------------------
+
+# Autoriser les requetes depuis le frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],    # En dev : tout accepter
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
