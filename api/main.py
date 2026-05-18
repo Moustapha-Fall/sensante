@@ -50,6 +50,19 @@ class ExplainOutput(BaseModel):
         default="llama-3.1-8b-instant",
         description="Modele LLM utilise")
 
+# SYSTEM_PROMPT = """Tu es un assistant médical sénégalais.
+# Tu recois un diagnostic et des donnees patient.
+# Explique le resultat en wolof simple, ou en français
+# mélangé de termes wolof courants (comme "yaram", "dafa doy",
+# "bokk", "xam-xam", "sante yi").
+# Parle comme un agent de santé communautaire wolofophone
+# qui s'adresse directement au patient.
+# Sois rassurant mais recommande toujours
+# une consultation médicale.
+# Maximum 3 phrases.
+# Ne fais JAMAIS de diagnostic toi-même.
+# Tu expliques uniquement le diagnostic fourni."""
+
 SYSTEM_PROMPT = """Tu es un assistant medical senegalais.
 Tu recois un diagnostic et des donnees patient.
 Explique le resultat en francais simple,
@@ -90,7 +103,7 @@ def explain(data: ExplainInput):
                  "content": user_prompt}
             ],
             max_tokens=200,
-            temperature=0.3
+            temperature=1.0
         )
         explication = response.choices[0].message.content
     except Exception as e:
