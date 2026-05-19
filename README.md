@@ -1,12 +1,3 @@
----
-title: SenSante
-emoji: 🏥
-colorFrom: blue
-colorTo: green
-sdk: docker
-pinned: false
----
-
 # SenSante
 Assistant pre-diagnostic medical pour le Senegal.
 
@@ -22,3 +13,4 @@ https://moustaphafall-sensante.hf.space
 
 ## Auteur
 Moustapha Fall - L2 GLSI - ESP/UCAD - 2026
+
